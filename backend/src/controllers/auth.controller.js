@@ -38,8 +38,30 @@ export const signup = async (req, res) => {
 }
 
 
-export const login = (req, res) => {
-    res.send("login route");
+export const login = async (req, res) => {
+    const {email, password} = req.body;
+    try {
+        if(!email || !password) return res.status(400).json({message: "All fields are required!"});
+        const user = await User.findOne({email});
+        if(!user){
+            return res.status(400).json({message:"Invalid credentials!"});
+        }
+        const isCorrectPassword = await bcrypt.compare(password, user.password);
+        if(!isCorrectPassword) {
+            return res.status(400).json({message:"Invalid credentials!"});
+        }
+
+        generateToken(user._id, res);
+        res.status(201).json({
+            _id: user._id,
+            fullname:user.fullname,
+            email:user.email,
+            profilePic: user.profilePic
+        })
+
+    } catch (error) {
+        res.status(401).json({success: false, message: "An error occured!"});
+    }
 }
 export const logout = (req, res) => {
     res.send("logout route");
