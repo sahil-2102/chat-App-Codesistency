@@ -9,11 +9,9 @@ export const signup = async (req, res) => {
       return res.status(400).json({ message: "All fields are required!" });
     }
     if (password.length < 6) {
-      return res
-        .status(400)
-        .json({
-          message: "Password should be more than or equal to 6 characters!",
-        });
+      return res.status(400).json({
+        message: "Password should be more than or equal to 6 characters!",
+      });
     }
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -81,16 +79,28 @@ export const logout = (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { profilePic } = req.body;
-    const userId = req.user._id;
-    if(!profilePic){
-        return res.status(401).json({message:"Profile pic is required!"});
+    const { profilePic } = req.body; // get the profile pic from req.body
+    const userId = req.user._id;    // it helps getting the verifies userId using jwt verification
+    if (!profilePic) {
+      return res.status(401).json({ message: "Profile pic is required!" }); // validate if profile pic is given
     }
-    const updateResponse = await cloudinary.uploader.upload(profilePic);
-    const updatedUser = await User.findByIdAndUpdate(userId,{profilePic: updateResponse.secure_url}, {new: true});
+    const updateResponse = await cloudinary.uploader.upload(profilePic); // upload image on cloudinary
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profilePic: updateResponse.secure_url },
+      { new: true }
+    ); // update the user 
     res.status(201).json(updatedUser);
   } catch (error) {
     console.log("Error in update controller! ", error.message);
+    res.status(500).json({ message: "Internal server error!" });
+  }
+};
+export const checkAuth = (req, res) => {
+  try {
+    res.status(200).json(req.user);
+  } catch (error) {
+    console.log("Error in checkAuth controller! ", error.message);
     res.status(500).json({ message: "Internal server error!" });
   }
 };
