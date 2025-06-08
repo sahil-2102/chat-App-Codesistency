@@ -1,5 +1,6 @@
 import Message from "../models/message.model.js";
 import User from "../models/user.model.js";
+import cloudinary from "../lib/cloudinary.js";
 export const getUsersForSidebar = async (req, res) => {
     try {
         const loggedInUser = req.user._id;
@@ -26,6 +27,32 @@ export const getMessages = async (req, res) => {
         res.status(200).json(messages);
     } catch (error) {
         console.log("Error in getMessages controller! ", error.message);
+        res.status(500).json({message: "Internal server error!"});
+    }
+}
+export const sendMessage = async (req,res) => {
+    try {
+        const {id: receiverId} = req.params;
+        const senderId = req.user._id;
+        const {text, image} = req.body;
+        let imageUrl;
+        if(image){
+            const uploadResponse = await cloudinary.uploader.upload(image);
+            imageUrl = uploadResponse.secure_url;
+        }
+        const newNessage = new Message({
+            senderId,
+            receiverId,
+            text,
+            image: imageUrl
+        })
+        await newNessage.save();
+        // Still to go
+        //Implementation of real-time communication with socket.io
+
+
+    } catch (error) {
+        console.log("Error in sendMessage controller! ", error.message);
         res.status(500).json({message: "Internal server error!"});
     }
 }
