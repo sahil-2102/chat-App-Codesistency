@@ -40,17 +40,17 @@ export const sendMessage = async (req,res) => {
             const uploadResponse = await cloudinary.uploader.upload(image);
             imageUrl = uploadResponse.secure_url;
         }
-        const newNessage = new Message({
+        const newMessage = new Message({
             senderId,
             receiverId,
             text,
             image: imageUrl
         })
-        await newNessage.save();
+        await newMessage.save();
         // Still to go
         //Implementation of real-time communication with socket.io
 
-
+        res.status(200).json(newMessage);
     } catch (error) {
         console.log("Error in sendMessage controller! ", error.message);
         res.status(500).json({message: "Internal server error!"});
