@@ -1,5 +1,5 @@
 import Navbar from "./components/Navbar.jsx";
-import {Route, Routes} from "react-router-dom";
+import {Navigate, Route, Routes} from "react-router-dom";
 import HomePage from "./pages/Homepage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
@@ -23,11 +23,11 @@ const App = () => {
     <div>
       <Navbar/>
       <Routes>
-        <Route path="/" element={<HomePage/>}/>
-        <Route path="/signup" element={<SignUpPage/>}/>
-        <Route path="/login" element={<LoginPage/>}/>
+        <Route path="/" element={authUser ? <HomePage/> : <Navigate to = "/login"/>}/>
+        <Route path="/signup" element={!authUser ? <SignUpPage/> : <Navigate to = "/" />}/>
+        <Route path="/login" element={!authUser ? <LoginPage/> : <Navigate to = "/" />}/>
         <Route path="/settings" element={<SettingsPage/>}/>
-        <Route path="/profile" element={<ProfilePage/>}/>
+        <Route path="/profile" element={authUser ? <ProfilePage/> : <Navigate to = "/login" />}/>
       </Routes>
     </div>
   );
